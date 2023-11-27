@@ -30,12 +30,20 @@ int main(int argc, char* argv[]){
 			if(getpid() == pidoriginal){pid = fork();}
 			if(pid == CHILDPID){
 				if(execl(input,input,NULL)==-1){
-					if(execlp(input,input,NULL)==-1)	{perror("wrong command");}
+					if(execlp(input,input,NULL)==-1)	{perror("wrong command"); exit(EXIT_FAILURE);}
 				}
 				exit(EXIT_SUCCESS);
 			}
 			wait(&status);
-	}
-	
+			char prompt[]="enseash %";
+			if (WIFEXITED(status)){
+				snprintf(prompt,100,"enseash [exit:%d] %%", WEXITSTATUS(status));
+				write(STDOUT_FILENO,prompt,strlen(prompt));
+			}
+			else if (WIFSIGNALED(status)){
+				snprintf(prompt,100,"enseash [sign:%d] %%", WTERMSIG(status));
+				write(STDOUT_FILENO,prompt,strlen(prompt));
+			}
+		}
 	}
 }
