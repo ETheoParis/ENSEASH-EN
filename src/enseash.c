@@ -62,10 +62,8 @@ void executeCommand(char* input, int pidoriginal) {
     
     redirectManager(input, arguments);
     
-    //create a child program to execute function
     int pid = fork();
 
-	//check if child created
     if (pid < 0) {
         perror("fork impossible");
         exit(EXIT_FAILURE);
@@ -88,7 +86,6 @@ void executeCommand(char* input, int pidoriginal) {
     
     
     clock_gettime(CLOCK_MONOTONIC, &end);
-    //make difference between time before exec and time after exec and convert in ms
     long timeelapsed = (end.tv_nsec - start.tv_nsec) / 1000000;
     
     //prompt result of function
