@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <time.h>
+#include <fcntl.h>
 
 
 void complexCom(char*input, char**buffer){
@@ -22,10 +23,34 @@ void complexCom(char*input, char**buffer){
 }
 
 void redirectManager(char* input, char**buffer){
-	int input_fd=-1;
-	int output_fd=-1;
+	int oldfd=-1;
+	complexCom(input,buffer);
 	
-
+	for(int i=0; buffer[i]!=NULL;++i){
+		if(strcmp(buffer[i],"<")==0){
+			oldfd=open(buffer[i+1],O_RDONLY);
+			if (oldfd==-1){
+				perror("Failed to open");
+				exit(EXIT_FAILURE);
+			}
+			close(oldfd);
+			dup2(oldfd, STDIN_FILENO);
+			buffer[i]=NULL;
+			break;
+		}
+		else if(strcmp(buffer[i],">")==0){
+			oldfd=open(buffer[i+1],O_WRONLY | O_CREAT | O_TRUNC,00700);
+			if (oldfd==-1){
+				perror("Failed to open");
+				exit(EXIT_FAILURE);
+			}
+			dup2(oldfd,STDOUT_FILENO);
+			close(oldfd);
+			buffer[i]=NULL;
+			break;
+		}
+	}
+}
 
 void executeCommand(char* input, int pidoriginal) {
     struct timespec start, end;
@@ -35,7 +60,7 @@ void executeCommand(char* input, int pidoriginal) {
     
     clock_gettime(CLOCK_MONOTONIC, &start);
     
-    complexCom(input, arguments);
+    redirectManager(input, arguments);
     
     //create a child program to execute function
     int pid = fork();
