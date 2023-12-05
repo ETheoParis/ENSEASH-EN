@@ -1,0 +1,8 @@
+enseash
+enseash.c
+filelist.txt
+functions.c
+functions.h
+welcome
+welcome.c
+enseash [exit:0]|[1ms] %enseash % 
